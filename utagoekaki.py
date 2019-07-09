@@ -12,6 +12,7 @@ import numpy as np
 
 APP = None
 # global instance of APPlication
+UTAGOE_VERSION = 'utagoekaki 1.0'
 
 LABELS_PRESET = ('car', 'track', 'bus', 'traffic light')
 
@@ -215,11 +216,11 @@ class Application(tkinter.Frame):
 		# image read
 		# filetyp = [('JPG File Folder','')]
 		idir = os.path.abspath(os.path.dirname(__file__))
-		tkinter.messagebox.showinfo('utagoekaki','連番画像を含むフォルダを選択してください')
+		tkinter.messagebox.showinfo(UTAGOE_VERSION,'連番画像を含むフォルダを選択してください')
 		# file = tkinter.filedialog.askopenfilename(filetypes=filetyp, initialdir=idir)
 		self.image_dir = tkinter.filedialog.askdirectory(initialdir=idir)
 		if self.image_dir ==  '':
-			tkinter.messagebox.showinfo('utagoekaki','キャンセルされました。終了します')
+			tkinter.messagebox.showinfo(UTAGOE_VERSION,'キャンセルされました。終了します')
 			sys.exit()
 
 		# self.image_list = glob.glob(os.path.join(self.image_dir,'*.jpg'))
@@ -228,7 +229,7 @@ class Application(tkinter.Frame):
 		self.image_list.sort()
 		# print(self.image_list)
 		if len(self.image_list) == 0:
-			tkinter.messagebox.showinfo('utagoekaki','画像がありません！\nちなみにjpgじゃないとだめです。終了します')
+			tkinter.messagebox.showinfo(UTAGOE_VERSION,'画像がありません！\nちなみにjpgじゃないとだめです。終了します')
 			sys.exit()
 
 		self.cur_index = 0
@@ -251,7 +252,7 @@ class Application(tkinter.Frame):
 		self.color_num = len(self.labels)
 		self.colors = self.get_colors(self.color_num)
 
-		root.title(self.image_dir + ' - ' + str(self.cur_index+1) + '/' + str(len(self.image_list)))
+		root.title(self.get_title_string())
 
 		# child frame
 		self.button_frame = tkinter.Frame(self)
@@ -437,7 +438,7 @@ class Application(tkinter.Frame):
 
 		self.load_yolo()
 		self.zoom_reset()
-		root.title(self.image_dir + ' - ' + str(self.cur_index+1) + '/' + str(len(self.image_list)))
+		root.title(self.get_title_string())
 
 
 	def next(self,event=None):
@@ -454,7 +455,7 @@ class Application(tkinter.Frame):
 
 		self.load_yolo()
 		self.zoom_reset()
-		root.title(self.image_dir + ' - ' + str(self.cur_index+1) + '/' + str(len(self.image_list)))
+		root.title(self.get_title_string())
 
 
 	######################################################################## }image_scroll
@@ -796,6 +797,8 @@ class Application(tkinter.Frame):
 			colors[self.labels[i]] = code
 		return colors
 
+	def get_title_string(self):
+		return UTAGOE_VERSION + ' @ ' + self.image_dir + ' - ' + str(self.cur_index+1) + '/' + str(len(self.image_list))
 	######################################################################## }utility
 
 
