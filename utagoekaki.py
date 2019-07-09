@@ -314,8 +314,8 @@ class Application(tkinter.Frame):
 
 		# popup menu
 		self.menu = tkinter.Menu(self, tearoff=0)
-		self.menu.add_command(label='DELETE focussed annotation',command=self.delete)
-		self.menu.add_command(label='CHANGE LABEL of focussed annotation',command=lambda: self.modify_label(self.menu.event))
+		self.menu.add_command(label='DELETE focused annotation',command=self.delete)
+		self.menu.add_command(label='CHANGE LABEL of focused annotation',command=lambda: self.modify_label(self.menu.event))
 
 		# Rectangle.APP = self
 		global APP
@@ -689,7 +689,7 @@ class Application(tkinter.Frame):
 		# すでにfocusingに指定されている場合(Knobを描画済み)、Knobの位置を更新->re_focus
 		# 図形とノブを一番上に持ってくる
 		# focus annotaion, draw 'Knobs'
-		# just change coord of 'Knobs' if they're already drawn (already focussed) -> re_focus
+		# just change coord of 'Knobs' if they're already drawn (already focused) -> re_focus
 		# adjust order of canvas object
 		if not self.imgcanvas.focusing == rect:
 			self.imgcanvas.focusing = rect
