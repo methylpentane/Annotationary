@@ -50,6 +50,7 @@ class Rectangle:
 
 	def set_points_by_coord(self, coord):
 		# canvasの四角形の座標形式から頂点をセット
+		# set vertice by format of tkinter#canvas
 		x1, y1, x2, y2 = coord
 		if x1 < x2:
 			if y1 < y2:
@@ -66,6 +67,8 @@ class Rectangle:
 	def draw(self):
 		# 現在の頂点リストをもとにcanvasに描画し、self.IDを設定
 		# self.IDがある場合(すでに描画済み)、図形の位置を更新
+		# draw on canvas by current vertice list, save IDs
+		# just change coords if it have already IDs (already drawn)
 		c = (self.points[0]+self.points[2]) / 2 * APP.imgcanvas.ratio
 		p = self.points * APP.imgcanvas.ratio
 
@@ -91,6 +94,7 @@ class Rectangle:
 
 	def label_redraw(self):
 		# ラベルだけ書き直す
+		# change label showing
 		APP.imgcanvas.itemconfig(self.ID[0], text=self.label, fill=APP.colors[self.label])
 		APP.imgcanvas.itemconfig(self.ID[1], fill=APP.colors[self.label])
 		APP.imgcanvas.itemconfig(self.ID[2], fill=APP.colors[self.label])
@@ -113,6 +117,7 @@ class Rectangle:
 
 
 	def modify(self,n,x,y):
+		# modifying rectangle
 		# 四角形の変形
 		global APP
 
@@ -134,6 +139,7 @@ class Rectangle:
 			self.points[q][1] = y
 
 		# 移動後座標(_dash)に応じて頂点リストの順番を変更
+		# fix the order of list
 		n_dash = np.array([x,y], np.int)
 		vec_pn_dash = n_dash - self.points[p]
 		x_dash = vec_pn_dash[0]
@@ -168,7 +174,6 @@ class Rectangle:
 				APP.imgcanvas.knobs = APP.imgcanvas.knobs[[1,0,3,2]]
 
 		self.draw()
-		# self.focus()
 
 
 	def move(self,dxi,dyi):
@@ -216,20 +221,20 @@ class Application(tkinter.Frame):
 		# image read
 		# filetyp = [('JPG File Folder','')]
 		idir = os.path.abspath(os.path.dirname(__file__))
-		tkinter.messagebox.showinfo(UTAGOE_VERSION,'連番画像を含むフォルダを選択してください')
+		tkinter.messagebox.showinfo(UTAGOE_VERSION,'welcome!\nplease choose the directory including image sequence')
 		# file = tkinter.filedialog.askopenfilename(filetypes=filetyp, initialdir=idir)
 		self.image_dir = tkinter.filedialog.askdirectory(initialdir=idir)
 		if self.image_dir ==  '':
-			tkinter.messagebox.showinfo(UTAGOE_VERSION,'キャンセルされました。終了します')
+			tkinter.messagebox.showinfo(UTAGOE_VERSION,'cancel button is pressed. terminate.')
 			sys.exit()
 
 		# self.image_list = glob.glob(os.path.join(self.image_dir,'*.jpg'))
-		pattern = '.*\.jpg'
+		pattern = '.*\.jpe?g'
 		self.image_list = [os.path.join(self.image_dir,f) for f in os.listdir(self.image_dir) if re.search(pattern, f, re.IGNORECASE)]
 		self.image_list.sort()
 		# print(self.image_list)
 		if len(self.image_list) == 0:
-			tkinter.messagebox.showinfo(UTAGOE_VERSION,'画像がありません！\nちなみにjpgじゃないとだめです。終了します')
+			tkinter.messagebox.showinfo(UTAGOE_VERSION,'the directory have no image!\nor your images should be \".jpg\" or \".jpeg\".')
 			sys.exit()
 
 		self.cur_index = 0
@@ -309,8 +314,8 @@ class Application(tkinter.Frame):
 
 		# popup menu
 		self.menu = tkinter.Menu(self, tearoff=0)
-		self.menu.add_command(label='フォーカス中図形を削除',command=self.delete)
-		self.menu.add_command(label='フォーカス中図形のラベルを変更',command=lambda: self.modify_label(self.menu.event))
+		self.menu.add_command(label='DELETE focussed annotation',command=self.delete)
+		self.menu.add_command(label='CHANGE LABEL of focussed annotation',command=lambda: self.modify_label(self.menu.event))
 
 		# Rectangle.APP = self
 		global APP
@@ -683,6 +688,9 @@ class Application(tkinter.Frame):
 		# 図形をfocusingに指定し、Knobを描画
 		# すでにfocusingに指定されている場合(Knobを描画済み)、Knobの位置を更新->re_focus
 		# 図形とノブを一番上に持ってくる
+		# focus annotaion, draw 'Knobs'
+		# just change coord of 'Knobs' if they're already drawn (already focussed) -> re_focus
+		# adjust order of canvas object
 		if not self.imgcanvas.focusing == rect:
 			self.imgcanvas.focusing = rect
 			self.imgcanvas.delete('knob')
@@ -812,15 +820,13 @@ class Application(tkinter.Frame):
             #################################################################
 
 def on_closing(root):
-    if messagebox.askokcancel("Quit", "終了してもよろしいですか？"):
+    if messagebox.askokcancel("Quit", "Are you sure you want to quit?"):
         root.destroy()
 
 root = tkinter.Tk()
 root.protocol("WM_DELETE_WINDOW", lambda: on_closing(root))
-# ルートフレーム
+# root frame
 root.withdraw()
-# ルートフレームが不必要な場合この関数で非表示になる
 app = Application(master=root)
 root.deiconify()
-# ルートフレームの再表示
 app.mainloop()
