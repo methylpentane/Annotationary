@@ -12,7 +12,7 @@ import numpy as np
 
 APP = None
 # global instance of APPlication
-UTAGOE_VERSION = 'utagoekaki 1.0'
+UTAGOE_VERSION = 'LabelingYOLO 1.0'
 
 LABELS_PRESET = ('car', 'track', 'bus', 'traffic light')
 

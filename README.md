@@ -1,11 +1,11 @@
 # utagoekaki
-YOLO format labeling tool.  'oekaki' = drawing (japanese)
+YOLO format labeling tool.  
 
 This is originally for our project of ml-based tracking.
 
 You can draw and make YOLO label(annotation) files from your jpg image sequence.
 
-![screenshot](https://github.com/utagoeinc/utagoekaki/blob/images/src/screenshot.PNG)
+![screenshot](https://github.com/utagoeinc/LabelingYOLO/blob/images/src/screenshot.PNG)
 
 ## Getting Started
 ___
