@@ -1,11 +1,11 @@
-# LabelingYOLO
-YOLO format labeling tool.  
+# Annotationary
+tool for making YOLO annotation file  
 
 This is originally for our project of ml-based tracking.
 
 You can draw and make YOLO label(annotation) files from your jpg image sequence.
 
-![screenshot](https://github.com/utagoeinc/LabelingYOLO/blob/images/src/screenshot.PNG)
+![screenshot](https://github.com/utagoeinc/Annotationary/blob/images/src/screenshot.PNG)
 
 ## Getting Started
 ___
