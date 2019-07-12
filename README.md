@@ -1,4 +1,4 @@
-# utagoekaki
+# LabelingYOLO
 YOLO format labeling tool.  
 
 This is originally for our project of ml-based tracking.
