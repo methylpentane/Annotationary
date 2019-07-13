@@ -265,7 +265,7 @@ class Application(tkinter.Frame):
 		self.cur_height = self.img_height
 
 		# label
-		classes_path = os.path.join(self.image_dir, 'classes.txt')
+		classes_path = os.path.join(os.path.dirname(__file__),'data','classes.txt')
 		if os.path.exists(classes_path):
 			with open(classes_path) as f:
 				l = f.read().splitlines()
