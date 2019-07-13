@@ -221,14 +221,13 @@ class Application(tkinter.Frame):
 		# image read
 		# filetyp = [('JPG File Folder','')]
 		idir = os.path.abspath(os.path.dirname(__file__))
-		tkinter.messagebox.showinfo(UTAGOE_VERSION,'welcome!\nplease choose the directory including image sequence')
-		# file = tkinter.filedialog.askopenfilename(filetypes=filetyp, initialdir=idir)
+
+		# choose image directory
+		tkinter.messagebox.showinfo(UTAGOE_VERSION,'Welcome!\nSelect the folder including image sequence.')
 		self.image_dir = tkinter.filedialog.askdirectory(initialdir=idir)
 		if self.image_dir ==  '':
 			tkinter.messagebox.showinfo(UTAGOE_VERSION,'cancel button is pressed. terminate.')
 			sys.exit()
-
-		# self.image_list = glob.glob(os.path.join(self.image_dir,'*.jpg'))
 		pattern = '.*\.jpe?g'
 		self.image_list = [os.path.join(self.image_dir,f) for f in os.listdir(self.image_dir) if re.search(pattern, f, re.IGNORECASE)]
 		self.image_list.sort()
@@ -236,6 +235,25 @@ class Application(tkinter.Frame):
 		if len(self.image_list) == 0:
 			tkinter.messagebox.showinfo(UTAGOE_VERSION,'the directory have no image!\nor your images should be \".jpg\" or \".jpeg\".')
 			sys.exit()
+
+		# choose label directory
+		tkinter.messagebox.showinfo(UTAGOE_VERSION,'Next,\nSelect the folder to save/load annotations.')
+		self.label_dir = tkinter.filedialog.askdirectory(initialdir=os.path.dirname(self.image_dir))
+		if self.label_dir ==  '':
+			tkinter.messagebox.showinfo(UTAGOE_VERSION,'cancel button is pressed. terminate.')
+			sys.exit()
+		pattern = '.*\.txt'
+		label_list = [os.path.join(self.label_dir,f) for f in os.listdir(self.label_dir) if re.search(pattern, f, re.IGNORECASE)]
+		label_list.sort()
+		self.label_dict = {}
+		for label in label_list:
+			regexp = re.compile(os.path.basename(label).rsplit('.',1)[0])
+			for i,image in enumerate(self.image_list):
+				if regexp.search(image) != None:
+					self.label_dict[i] = label
+					break
+		# print(self.label_dict)
+
 
 		self.cur_index = 0
 		self.image_pl = Image.open(self.image_list[self.cur_index])
@@ -468,23 +486,25 @@ class Application(tkinter.Frame):
 
 	######################################################################## save,load{
 	def load_yolo(self):
-		name = '{0:04d}.txt'.format(self.cur_index)
-		yolo_path = os.path.join(self.image_dir, name)
 		self.imgcanvas.rectangle = []
-		if os.path.exists(yolo_path):
+		if self.cur_index in self.label_dict.keys():
+			yolo_path = self.label_dict[self.cur_index]
 			with open(yolo_path, 'r') as file:
 				for line in file.readlines():
 					l = line.split(' ')
 					rect = Rectangle(self.yolo_to_tk(float(l[1]),float(l[2]),float(l[3]),float(l[4])))
 					rect.label = self.labels[int(l[0])]
-					print(rect.points)
+					# print(rect.points)
 					self.imgcanvas.rectangle.append(rect)
 
 
 	def save_yolo(self):
-		name = '{0:04d}.txt'.format(self.cur_index)
-		yolo_path = os.path.join(self.image_dir, name)
 		line = []
+		if self.cur_index in self.label_dict.keys():
+			yolo_path = self.label_dict[self.cur_index]
+		else:
+			yolo_path = os.path.join(self.label_dir, os.path.basename(self.image_list[self.cur_index]).rsplit('.',1)[0] + '.txt')
+			self.label_dict[self.cur_index] = yolo_path
 		with open(yolo_path, 'w') as file:
 			for rect in self.imgcanvas.rectangle:
 				l = str(self.labels.index(rect.label)) + ' '
