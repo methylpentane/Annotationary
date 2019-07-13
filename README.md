@@ -3,7 +3,7 @@ tool for making YOLO annotation file
 
 This is originally for our project of ml-based tracking.
 
-You can draw and make YOLO label(annotation) files from your jpg image sequence.
+You can draw and make YOLO annotation(label) files from your jpg image sequence.
 
 ![screenshot](https://github.com/utagoeinc/Annotationary/blob/images/src/screenshot.PNG)
 
@@ -11,7 +11,7 @@ You can draw and make YOLO label(annotation) files from your jpg image sequence.
 ___
 #### 1. Prepare environment  
 At first, this code safely run at Windows.  
-Although this is python code, we not recommend Linux and mac because they don't run this code properly.
+Although this is python code, we do not recommend Linux and mac because they don't run this code properly.
 
 And you need:  
 - python3
@@ -38,23 +38,28 @@ Format is simple. if you set the class "car" and "track" and "people",
 	track
 	people
 	
-and save as "classes.txt" __in directory of image sequence.__
+and save as "classes.txt" __in "data" directory of this repositry.__  
 
 ## Operation
 ___
-#### 1. add label  
-Click at start point, and one more click at end point to draw label. then choose class.
-Esc key can quit drawing phase.
+#### 0. select directory
+You will be asked for image directory path, and annotation directory path to save (it can load, too!).  
+No JPG images in image directory, cause error.  
+You can run with directory "sample" and "labels" if you want see demo.
 ___
-#### 2. move label  
+#### 1. add annotation  
+Click at start point, and one more click at end point to draw annotation. then choose class.
+Esc key can quit drawing phase.  
+___
+#### 2. move annotation  
 Drag rectangle for move, drag circle on vertice to deform.  
 ___
-#### 3. save label
-Press floppy disk button to save labels on current image as text file. The file is in same directory of images.  
+#### 3. save annotation
+Press floppy disk button to save annotations on current image as txt file.  
 ___
 #### 4. right click menu  
-you can delete and change label from right click menu.  
-the change will not saved until you press save button again.
+you can delete and change annotations from right click menu.  
+the change will not saved until you press save button again.  
 ___
 #### 5. other button on above
 magnifier -> zoom function  
