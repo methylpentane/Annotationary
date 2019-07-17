@@ -762,7 +762,7 @@ class Application(tkinter.Frame):
 
 
 	def end_draw(self,event=None):
-		# print('end')
+		# print('end')s
 		self.imgcanvas.unbind('<Motion>')
 		self.imgcanvas.tag_unbind('all','<Button-1>')
 		self.imgcanvas.tag_bind('drawable','<Button-1>',self.do_draw)
