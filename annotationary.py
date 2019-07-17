@@ -17,6 +17,8 @@ UTAGOE_VERSION = 'Annotationary 1.0'
 LABELS_PRESET = ('car', 'track', 'bus', 'traffic light')
 
 
+
+
             #################################################################
 #########################################################################################
 ######################################   Rectangle   ####################################
@@ -36,9 +38,9 @@ class Rectangle:
 
 	# APP = None
 	NUM_OF_POINTS = 4
-	NUM_OF_TEMP = 4
-	TEMP = []
-	TEMP_ID = []
+	NUM_OF_TEMP   = 4
+	TEMP          = []
+	TEMP_ID       = []
 
 	def __init__(self,coord=None):
 		self.points = None
@@ -82,14 +84,14 @@ class Rectangle:
 			APP.imgcanvas.coords(self.ID[6], p[3][0], p[3][1], p[0][0], p[0][1])
 			APP.imgcanvas.coords(self.ID[7], p[0][0], p[0][1], p[2][0], p[2][1])
 		else:
-			self.ID.append(APP.imgcanvas.create_text(p[0][0],p[0][1], text=self.label, fill=APP.colors[self.label], font=('',20), justify='left', anchor='nw', tag='label'))
-			self.ID.append(APP.imgcanvas.create_line(p[0][0], c[1],    p[2][0], c[1], fill=APP.colors[self.label],width='1',tag='centerline'))
-			self.ID.append(APP.imgcanvas.create_line(c[0],    p[0][1], c[0],    p[2][1], fill=APP.colors[self.label],width='1',tag='centerline'))
-			self.ID.append(APP.imgcanvas.create_line(p[0][0], p[0][1], p[1][0], p[1][1], stipple='@src/empty.xbm',width='11',tag='rect'))
-			self.ID.append(APP.imgcanvas.create_line(p[1][0], p[1][1], p[2][0], p[2][1], stipple='@src/empty.xbm',width='11',tag='rect'))
-			self.ID.append(APP.imgcanvas.create_line(p[2][0], p[2][1], p[3][0], p[3][1], stipple='@src/empty.xbm',width='11',tag='rect'))
-			self.ID.append(APP.imgcanvas.create_line(p[3][0], p[3][1], p[0][0], p[0][1], stipple='@src/empty.xbm',width='11',tag='rect'))
-			self.ID.append(APP.imgcanvas.create_rectangle(p[0][0], p[0][1], p[2][0], p[2][1], outline=APP.colors[self.label],fill='white',stipple='@src/empty.xbm',width='1',tag='rect'))
+			self.ID.append(APP.imgcanvas.create_text(p[0][0],p[0][1], text=self.label, fill=APP.colors[self.label], font=('',20), justify='left', anchor='nw', tag='class_text'))
+			self.ID.append(APP.imgcanvas.create_line(p[0][0], c[1],    p[2][0], c[1], fill=APP.colors[self.label],width='1',tag=('centerline','movable')))
+			self.ID.append(APP.imgcanvas.create_line(c[0],    p[0][1], c[0],    p[2][1], fill=APP.colors[self.label],width='1',tag=('centerline','movable')))
+			self.ID.append(APP.imgcanvas.create_line(p[0][0], p[0][1], p[1][0], p[1][1], stipple='@src/empty.xbm',width='11',tag=('rect','movable')))
+			self.ID.append(APP.imgcanvas.create_line(p[1][0], p[1][1], p[2][0], p[2][1], stipple='@src/empty.xbm',width='11',tag=('rect','movable')))
+			self.ID.append(APP.imgcanvas.create_line(p[2][0], p[2][1], p[3][0], p[3][1], stipple='@src/empty.xbm',width='11',tag=('rect','movable')))
+			self.ID.append(APP.imgcanvas.create_line(p[3][0], p[3][1], p[0][0], p[0][1], stipple='@src/empty.xbm',width='11',tag=('rect','movable')))
+			self.ID.append(APP.imgcanvas.create_rectangle(p[0][0], p[0][1], p[2][0], p[2][1], outline=APP.colors[self.label],fill='white',stipple='@src/empty.xbm',width='1',tag=('rect','movable')))
 
 
 	def label_redraw(self):
@@ -111,9 +113,9 @@ class Rectangle:
 			APP.imgcanvas.coords(cls.TEMP_ID[1], centerx, t[1], centerx, y)
 			APP.imgcanvas.coords(cls.TEMP_ID[2], t[0], centery, x, centery)
 		else:
-			cls.TEMP_ID.append(APP.imgcanvas.create_rectangle(x,y,x,y, outline='blue', width='1', tag='temp_rect'))
-			cls.TEMP_ID.append(APP.imgcanvas.create_line(x,y,x,y, fill='blue', width='1', tag='temp_rect'))
-			cls.TEMP_ID.append(APP.imgcanvas.create_line(x,y,x,y, fill='blue', width='1',tag='temp_rect'))
+			cls.TEMP_ID.append(APP.imgcanvas.create_rectangle(x,y,x,y, outline='blue', width='1', tag='temp_annotation'))
+			cls.TEMP_ID.append(APP.imgcanvas.create_line(x,y,x,y, fill='blue', width='1', tag='temp_annotation'))
+			cls.TEMP_ID.append(APP.imgcanvas.create_line(x,y,x,y, fill='blue', width='1',tag='temp_annotation'))
 
 
 	def modify(self,n,x,y):
@@ -188,6 +190,95 @@ class Rectangle:
 		if py[2] > APP.img_height:
 			py = py - (py[2]-APP.img_height)
 		self.points = np.vstack((px,py)).transpose()
+		self.draw()
+
+
+	def erase(self):
+		for ID in self.ID:
+			APP.imgcanvas.delete(ID)
+		self.ID.clear()
+
+
+
+            #################################################################
+#########################################################################################
+######################################     Point     ####################################
+#########################################################################################
+            #################################################################
+
+class Point:
+
+	# \ /
+	#  0
+	# / \
+
+	# 1 point, crosshair
+
+	NUM_OF_POINTS  = 1
+	NUM_OF_TEMP    = 2
+	TEMP           = []
+	TEMP_ID        = []
+	CROSSHAIR_SIZE = 15
+
+	def __init__(self,coord=None):
+		self.points = None
+		self.label  = None
+		self.ID     = []
+		self.offset = None
+		if coord:
+			self.set_points_by_coord(coord)
+
+
+	def set_points_by_coord(self, coord):
+		# canvasの四角形の座標形式から頂点をセット
+		# set vertice by format of tkinter#canvas
+		x, y = coord
+		self.points = np.array([[x,y]])
+
+
+	def draw(self):
+		# 現在の頂点リストをもとにcanvasに描画し、self.IDを設定
+		# self.IDがある場合(すでに描画済み)、図形の位置を更新
+		# draw on canvas by current vertice list, save IDs
+		# just change coords if it have already IDs (already drawn)
+		p = self.points * APP.imgcanvas.ratio
+
+		if self.ID:
+			APP.imgcanvas.coords(self.ID[0], p[0][0]-self.CROSSHAIR_SIZE, p[0][1]+self.CROSSHAIR_SIZE)
+			APP.imgcanvas.coords(self.ID[1], p[0][0]-self.CROSSHAIR_SIZE, p[0][1]+self.CROSSHAIR_SIZE, p[0][0]+self.CROSSHAIR_SIZE, p[0][1]-self.CROSSHAIR_SIZE)
+			APP.imgcanvas.coords(self.ID[2], p[0][0]-self.CROSSHAIR_SIZE, p[0][1]-self.CROSSHAIR_SIZE, p[0][0]+self.CROSSHAIR_SIZE, p[0][1]+self.CROSSHAIR_SIZE)
+		else:
+			self.ID.append(APP.imgcanvas.create_text(p[0][0]-self.CROSSHAIR_SIZE, p[0][1]+self.CROSSHAIR_SIZE, text=self.label, fill=APP.colors[self.label], font=('',12), justify='left', anchor='nw', tag='class_text'))
+			self.ID.append(APP.imgcanvas.create_line(p[0][0]-self.CROSSHAIR_SIZE, p[0][1]+self.CROSSHAIR_SIZE, p[0][0]+self.CROSSHAIR_SIZE, p[0][1]-self.CROSSHAIR_SIZE, fill=APP.colors[self.label], width='3', tag='crosshair'))
+			self.ID.append(APP.imgcanvas.create_line(p[0][0]-self.CROSSHAIR_SIZE, p[0][1]-self.CROSSHAIR_SIZE, p[0][0]+self.CROSSHAIR_SIZE, p[0][1]+self.CROSSHAIR_SIZE, fill=APP.colors[self.label], width='3', tag='crosshair'))
+
+
+	def label_redraw(self):
+		# ラベルだけ書き直す
+		# change label showing
+		APP.imgcanvas.itemconfig(self.ID[0], text=self.label, fill=APP.colors[self.label])
+		APP.imgcanvas.itemconfig(self.ID[1], fill=APP.colors[self.label])
+		APP.imgcanvas.itemconfig(self.ID[2], fill=APP.colors[self.label])
+
+
+	@classmethod
+	def show_temp(cls,x,y):
+		if cls.TEMP_ID:
+			pass
+			# no pattern
+		else:
+			cls.TEMP_ID.append(APP.imgcanvas.create_line(x-cls.CROSSHAIR_SIZE,y+cls.CROSSHAIR_SIZE,x+cls.CROSSHAIR_SIZE,y-cls.CROSSHAIR_SIZE, fill='blue', width='3', tag='temp_annotation'))
+			cls.TEMP_ID.append(APP.imgcanvas.create_line(x-cls.CROSSHAIR_SIZE,y-cls.CROSSHAIR_SIZE,x+cls.CROSSHAIR_SIZE,y+cls.CROSSHAIR_SIZE, fill='blue', width='3', tag='temp_annotation'))
+
+
+	def modify(self,n,x,y):
+		# modifying point means "just move"
+		assert n == 0
+
+		# 座標を変更
+		self.points[0][0] = x
+		self.points[0][1] = y
+
 		self.draw()
 
 
@@ -286,9 +377,11 @@ class Application(tkinter.Frame):
 		# toolbar
 		self.button_frame.zoom_frame = tkinter.Frame(self.button_frame)
 		self.button_frame.scrl_frame = tkinter.Frame(self.button_frame)
+		self.button_frame.palt_frame = tkinter.Frame(self.button_frame)
 		self.button_frame.save_frame = tkinter.Frame(self.button_frame)
-		self.button_frame.zoom_frame.pack(side='left', padx=(0,10))
-		self.button_frame.scrl_frame.pack(side='left', padx=(0,10))
+		self.button_frame.zoom_frame.pack(side='left', padx=(0,15))
+		self.button_frame.scrl_frame.pack(side='left', padx=(0,15))
+		self.button_frame.palt_frame.pack(side='left', padx=(0,15))
 		self.button_frame.save_frame.pack(side='left')
 
 		self.zoom_in_icon = ImageTk.PhotoImage(Image.open('src/zoom_in.png'))
@@ -296,6 +389,8 @@ class Application(tkinter.Frame):
 		self.zoom_reset_icon = ImageTk.PhotoImage(Image.open('src/zoom_reset.png'))
 		self.prev_img_icon = ImageTk.PhotoImage(Image.open('src/prev_img.png'))
 		self.next_img_icon = ImageTk.PhotoImage(Image.open('src/next_img.png'))
+		# self.rectangle_icon = ImageTk.PhotoImage(Image.open('src/rectangle.png'))
+		# self.point_icon = ImageTk.PhotoImage(Image.open('src/point.png'))
 		self.save_icon = ImageTk.PhotoImage(Image.open('src/save.png'))
 
 		self.zin_button = tkinter.Button(self.button_frame.zoom_frame, image=self.zoom_in_icon, command=self.zoom_in)
@@ -303,13 +398,20 @@ class Application(tkinter.Frame):
 		self.reset_button = tkinter.Button(self.button_frame.zoom_frame, image=self.zoom_reset_icon, command=self.zoom_reset)
 		self.prev_button = tkinter.Button(self.button_frame.scrl_frame, image=self.prev_img_icon, command=self.prev)
 		self.next_button = tkinter.Button(self.button_frame.scrl_frame, image=self.next_img_icon, command=self.next)
+		# self.rect_button = tkinter.Button(self.button_frame.palt_frame, image=self.rectangle_icon, command=self.mode_rect)
+		# self.point_button = tkinter.Button(self.button_frame.palt_frame, image=self.point_icon, command=self.mode_point)
 		self.save_button = tkinter.Button(self.button_frame.save_frame, image=self.save_icon, command=self.save_yolo)
 		self.zin_button.pack(side='left')
 		self.zout_button.pack(side='left')
 		self.reset_button.pack(side='left')
 		self.prev_button.pack(side='left')
 		self.next_button.pack(side='left')
+		# self.rect_button.pack(side='left')
+		# self.point_button.pack(side='left')
 		self.save_button.pack(side='left')
+
+		# annotation style default = rectangle
+		self.now_drawing = Rectangle.__class__
 
 		# canvas
 		self.cvs_width = self.img_width
@@ -333,21 +435,22 @@ class Application(tkinter.Frame):
 		# popup menu
 		self.menu = tkinter.Menu(self, tearoff=0)
 		self.menu.add_command(label='DELETE focused annotation',command=self.delete)
-		self.menu.add_command(label='CHANGE LABEL of focused annotation',command=lambda: self.modify_label(self.menu.event))
+		self.menu.add_command(label='CHANGE CLASS of focused annotation',command=lambda: self.modify_label(self.menu.event))
 
-		# Rectangle.APP = self
 		global APP
 		APP = self
 
 		# mouse event
 		self.imgcanvas.tag_bind('drawable','<Button-1>',self.do_draw)
-		self.imgcanvas.tag_bind('rect','<Button-1>',self.focus_id_search)
-		self.imgcanvas.tag_bind('rect','<Button1-Motion>',self.move_rect)
+		self.imgcanvas.tag_bind('movable','<Button-1>',self.focus_id_search)
+		self.imgcanvas.tag_bind('movable','<Button1-Motion>',self.move_rect)
 		self.imgcanvas.tag_bind('knob','<Button1-Motion>',self.modify_rect)
 		self.imgcanvas.bind('<Escape>',self.end_draw)
 		self.imgcanvas.bind('<Button-3>',self.do_popup)
 		self.imgcanvas.bind('<Configure>',self.save_geometry)
 		self.imgcanvas.bind('<a>',self.test)
+		self.imgcanvas.bind('<r>',self.mode_rect)
+		self.imgcanvas.bind('<p>',self.mode_point)
 
 		# canvas attribute
 		self.imgcanvas.rectangle = []
@@ -519,8 +622,8 @@ class Application(tkinter.Frame):
 	######################################################################## right click menu{
 	def do_popup(self,event=None):
 		self.imgcanvas.tag_unbind('drawable','<Button-1>')
-		self.imgcanvas.tag_unbind('rect','<Button-1>')
-		self.imgcanvas.tag_unbind('rect','<Button1-Motion>')
+		self.imgcanvas.tag_unbind('movable','<Button-1>')
+		self.imgcanvas.tag_unbind('movable','<Button1-Motion>')
 		self.imgcanvas.tag_unbind('knob','<Button1-Motion>')
 		self.imgcanvas.unbind('<Escape>')
 		self.imgcanvas.bind('<Button-1>',self.end_popup)
@@ -533,8 +636,8 @@ class Application(tkinter.Frame):
 	def end_popup(self,event=None):
 		self.imgcanvas.unbind('<Button-1>')
 		self.imgcanvas.tag_bind('drawable','<Button-1>',self.do_draw)
-		self.imgcanvas.tag_bind('rect','<Button-1>',self.focus_id_search)
-		self.imgcanvas.tag_bind('rect','<Button1-Motion>',self.move_rect)
+		self.imgcanvas.tag_bind('movable','<Button-1>',self.focus_id_search)
+		self.imgcanvas.tag_bind('movable','<Button1-Motion>',self.move_rect)
 		self.imgcanvas.tag_bind('knob','<Button1-Motion>',self.modify_rect)
 		self.imgcanvas.bind('<Escape>',self.end_draw)
 
@@ -559,12 +662,24 @@ class Application(tkinter.Frame):
 	######################################################################## }right click menu
 
 
+	######################################################################## mode change{
+	def mode_rect(self,event):
+		self.now_drawing = Rectangle
+		print(self.now_drawing)
+
+	def mode_point(self,event):
+		self.now_drawing = Point
+		print(self.now_drawing)
+
+	######################################################################## } mode change
+
+
 	######################################################################## draw,label{
 	def do_draw(self,event):
 		# print('start')
 		self.imgcanvas.tag_unbind('drawable','<Button-1>')
-		self.imgcanvas.tag_unbind('rect','<Button-1>')
-		self.imgcanvas.tag_unbind('rect','<Button1-Motion>')
+		self.imgcanvas.tag_unbind('movable','<Button-1>')
+		self.imgcanvas.tag_unbind('movable','<Button1-Motion>')
 		self.imgcanvas.tag_unbind('knob','<Button1-Motion>')
 		self.imgcanvas.unbind('<Button-3>')
 		self.imgcanvas.bind('<Motion>',self.show_temp)
@@ -582,10 +697,11 @@ class Application(tkinter.Frame):
 		# print('drawing')
 		xi,yi = self.xy_on_image(event.x, event.y)
 		xc,yc = self.xy_on_canvas(event.x, event.y)
-		Rectangle.TEMP.append(xi)
-		Rectangle.TEMP.append(yi)
-		if len(Rectangle.TEMP) == Rectangle.NUM_OF_TEMP:
-			rect = Rectangle(tuple(Rectangle.TEMP))
+		self.now_drawing.TEMP.append(xi)
+		self.now_drawing.TEMP.append(yi)
+		self.now_drawing.show_temp(xc,yc)
+		if len(self.now_drawing.TEMP) == self.now_drawing.NUM_OF_TEMP:
+			rect = self.now_drawing(tuple(self.now_drawing.TEMP))
 			self.label_process(rect,event)
 			if self.is_apply:
 				rect.draw()
@@ -595,7 +711,6 @@ class Application(tkinter.Frame):
 			self.end_draw()
 		else:
 			self.imgcanvas.create_oval(xc-7,yc-7,xc+7,yc+7, fill='blue', tag='temp_oval')
-			Rectangle.show_temp(xc,yc)
 
 
 	def label_process(self,rect,event):
@@ -643,7 +758,7 @@ class Application(tkinter.Frame):
 
 	def show_temp(self,event):
 		xc,yc = self.xy_on_canvas(event.x, event.y)
-		Rectangle.show_temp(xc,yc)
+		self.now_drawing.show_temp(xc,yc)
 
 
 	def end_draw(self,event=None):
@@ -651,8 +766,8 @@ class Application(tkinter.Frame):
 		self.imgcanvas.unbind('<Motion>')
 		self.imgcanvas.tag_unbind('all','<Button-1>')
 		self.imgcanvas.tag_bind('drawable','<Button-1>',self.do_draw)
-		self.imgcanvas.tag_bind('rect','<Button-1>',self.focus_id_search)
-		self.imgcanvas.tag_bind('rect','<Button1-Motion>',self.move_rect)
+		self.imgcanvas.tag_bind('movable','<Button-1>',self.focus_id_search)
+		self.imgcanvas.tag_bind('movable','<Button1-Motion>',self.move_rect)
 		self.imgcanvas.tag_bind('knob','<Button1-Motion>',self.modify_rect)
 		self.imgcanvas.bind('<Button-3>',self.do_popup)
 		self.zin_button.config(state='active')
@@ -664,15 +779,15 @@ class Application(tkinter.Frame):
 
 
 
-		if Rectangle.TEMP:
-			Rectangle.TEMP.clear()
-			Rectangle.TEMP_ID.clear()
+		if self.now_drawing.TEMP:
+			self.now_drawing.TEMP.clear()
+			self.now_drawing.TEMP_ID.clear()
 			self.imgcanvas.delete('temp_oval')
-			self.imgcanvas.delete('temp_rect')
+			self.imgcanvas.delete('temp_annotation')
 
 
 
-	######################################################################## }draw,labal
+	######################################################################## }draw,label
 
 
 	######################################################################## modify{
@@ -714,11 +829,12 @@ class Application(tkinter.Frame):
 		if not self.imgcanvas.focusing == rect:
 			self.imgcanvas.focusing = rect
 			self.imgcanvas.delete('knob')
-			self.imgcanvas.knobs = np.zeros(rect.__class__.NUM_OF_POINTS, np.int32)
+			self.imgcanvas.knobs = np.zeros(rect.__class__.NUM_OF_POINTS)
 			for i,p in enumerate(rect.points*self.imgcanvas.ratio):
 				ID = self.imgcanvas.create_oval(p[0]-7, p[1]-7, p[0]+7, p[1]+7, fill='white', tag='knob')
 				# print(i, p, ID)
 				self.imgcanvas.knobs[i] = ID
+				print(self.imgcanvas.knobs)
 		else:
 			for i,p in enumerate(rect.points*self.imgcanvas.ratio):
 				self.imgcanvas.coords(self.imgcanvas.knobs[i], p[0]-7, p[1]-7, p[0]+7, p[1]+7)
