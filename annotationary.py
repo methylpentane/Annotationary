@@ -84,7 +84,7 @@ class Rectangle:
 			APP.imgcanvas.coords(self.ID[6], p[3][0], p[3][1], p[0][0], p[0][1])
 			APP.imgcanvas.coords(self.ID[7], p[0][0], p[0][1], p[2][0], p[2][1])
 		else:
-			self.ID.append(APP.imgcanvas.create_text(p[0][0],p[0][1], text=self.label, fill=APP.colors[self.label], font=('',20), justify='left', anchor='nw', tag='class_text'))
+			self.ID.append(APP.imgcanvas.create_text(p[0][0],p[0][1], text=self.label, fill=APP.colors[self.label], font=('',APP.FONT_SIZE), justify='left', anchor='nw', tag='class_text'))
 			self.ID.append(APP.imgcanvas.create_line(p[0][0], c[1],    p[2][0], c[1], fill=APP.colors[self.label],width='1',tag=('centerline','movable')))
 			self.ID.append(APP.imgcanvas.create_line(c[0],    p[0][1], c[0],    p[2][1], fill=APP.colors[self.label],width='1',tag=('centerline','movable')))
 			self.ID.append(APP.imgcanvas.create_line(p[0][0], p[0][1], p[1][0], p[1][1], stipple='@src/empty.xbm',width='11',tag=('rect','movable')))
@@ -247,10 +247,12 @@ class Point:
 			APP.imgcanvas.coords(self.ID[0], p[0][0]-self.CROSSHAIR_SIZE, p[0][1]+self.CROSSHAIR_SIZE)
 			APP.imgcanvas.coords(self.ID[1], p[0][0]-self.CROSSHAIR_SIZE, p[0][1]+self.CROSSHAIR_SIZE, p[0][0]+self.CROSSHAIR_SIZE, p[0][1]-self.CROSSHAIR_SIZE)
 			APP.imgcanvas.coords(self.ID[2], p[0][0]-self.CROSSHAIR_SIZE, p[0][1]-self.CROSSHAIR_SIZE, p[0][0]+self.CROSSHAIR_SIZE, p[0][1]+self.CROSSHAIR_SIZE)
+			APP.imgcanvas.coords(self.ID[3], p[0][0]-self.CROSSHAIR_SIZE, p[0][1]-self.CROSSHAIR_SIZE, p[0][0]+self.CROSSHAIR_SIZE, p[0][1]+self.CROSSHAIR_SIZE)
 		else:
-			self.ID.append(APP.imgcanvas.create_text(p[0][0]-self.CROSSHAIR_SIZE, p[0][1]+self.CROSSHAIR_SIZE, text=self.label, fill=APP.colors[self.label], font=('',12), justify='left', anchor='nw', tag='class_text'))
+			self.ID.append(APP.imgcanvas.create_text(p[0][0]-self.CROSSHAIR_SIZE, p[0][1]+self.CROSSHAIR_SIZE, text=self.label, fill=APP.colors[self.label], font=('',APP.FONT_SIZE), justify='left', anchor='nw', tag='class_text'))
 			self.ID.append(APP.imgcanvas.create_line(p[0][0]-self.CROSSHAIR_SIZE, p[0][1]+self.CROSSHAIR_SIZE, p[0][0]+self.CROSSHAIR_SIZE, p[0][1]-self.CROSSHAIR_SIZE, fill=APP.colors[self.label], width='3', tag='crosshair'))
 			self.ID.append(APP.imgcanvas.create_line(p[0][0]-self.CROSSHAIR_SIZE, p[0][1]-self.CROSSHAIR_SIZE, p[0][0]+self.CROSSHAIR_SIZE, p[0][1]+self.CROSSHAIR_SIZE, fill=APP.colors[self.label], width='3', tag='crosshair'))
+			self.ID.append(APP.imgcanvas.create_rectangle(p[0][0]-self.CROSSHAIR_SIZE, p[0][1]-self.CROSSHAIR_SIZE, p[0][0]+self.CROSSHAIR_SIZE, p[0][1]+self.CROSSHAIR_SIZE, outline='black', fill='white', stipple='@src/empty.xbm', width='1', tag='movable'))
 
 
 	def label_redraw(self):
@@ -269,6 +271,21 @@ class Point:
 		else:
 			cls.TEMP_ID.append(APP.imgcanvas.create_line(x-cls.CROSSHAIR_SIZE,y+cls.CROSSHAIR_SIZE,x+cls.CROSSHAIR_SIZE,y-cls.CROSSHAIR_SIZE, fill='blue', width='3', tag='temp_annotation'))
 			cls.TEMP_ID.append(APP.imgcanvas.create_line(x-cls.CROSSHAIR_SIZE,y-cls.CROSSHAIR_SIZE,x+cls.CROSSHAIR_SIZE,y+cls.CROSSHAIR_SIZE, fill='blue', width='3', tag='temp_annotation'))
+
+
+	def move(self,dxi,dyi):
+		px = self.points[:,0]+dxi
+		py = self.points[:,1]+dyi
+		if px[0] < 1:
+			px = px - (px[0]-1)
+		if px[0] > APP.img_width:
+			px = px - (px[0]-APP.img_width)
+		if py[0] < 1:
+			py = py - (py[0]-1)
+		if py[0] > APP.img_height:
+			py = py - (py[0]-APP.img_height)
+		self.points = np.vstack((px,py)).transpose()
+		self.draw()
 
 
 	def modify(self,n,x,y):
@@ -298,6 +315,8 @@ class Point:
 class Application(tkinter.Frame):
 
 	COMMON_RATIO = 1.1
+	KNOB_SIZE = 6
+	FONT_SIZE = 18
 
 	def __init__(self, master=None):
 		super().__init__(master)
@@ -377,11 +396,11 @@ class Application(tkinter.Frame):
 		# toolbar
 		self.button_frame.zoom_frame = tkinter.Frame(self.button_frame)
 		self.button_frame.scrl_frame = tkinter.Frame(self.button_frame)
-		self.button_frame.palt_frame = tkinter.Frame(self.button_frame)
+		# self.button_frame.palt_frame = tkinter.Frame(self.button_frame)
 		self.button_frame.save_frame = tkinter.Frame(self.button_frame)
 		self.button_frame.zoom_frame.pack(side='left', padx=(0,15))
 		self.button_frame.scrl_frame.pack(side='left', padx=(0,15))
-		self.button_frame.palt_frame.pack(side='left', padx=(0,15))
+		# self.button_frame.palt_frame.pack(side='left', padx=(0,15))
 		self.button_frame.save_frame.pack(side='left')
 
 		self.zoom_in_icon = ImageTk.PhotoImage(Image.open('src/zoom_in.png'))
@@ -411,7 +430,7 @@ class Application(tkinter.Frame):
 		self.save_button.pack(side='left')
 
 		# annotation style default = rectangle
-		self.now_drawing = Rectangle.__class__
+		self.now_drawing = Rectangle
 
 		# canvas
 		self.cvs_width = self.img_width
@@ -595,7 +614,10 @@ class Application(tkinter.Frame):
 			with open(yolo_path, 'r') as file:
 				for line in file.readlines():
 					l = line.split(' ')
-					rect = Rectangle(self.yolo_to_tk(float(l[1]),float(l[2]),float(l[3]),float(l[4])))
+					if len(l) == 5:
+						rect = Rectangle(self.rect_yolo_to_tk(float(l[1]),float(l[2]),float(l[3]),float(l[4])))
+					elif len(l) == 3:
+						rect = Point(self.point_yolo_to_tk(float(l[1]),float(l[2])))
 					rect.label = self.labels[int(l[0])]
 					# print(rect.points)
 					self.imgcanvas.rectangle.append(rect)
@@ -611,7 +633,10 @@ class Application(tkinter.Frame):
 		with open(yolo_path, 'w') as file:
 			for rect in self.imgcanvas.rectangle:
 				l = str(self.labels.index(rect.label)) + ' '
-				yolo_str = ['{0:.6f}'.format(y) for y in self.tk_to_yolo(rect.points[0][0],rect.points[0][1],rect.points[2][0],rect.points[2][1])]
+				if rect.__class__.__name__ == 'Rectangle':
+					yolo_str = ['{0:.6f}'.format(y) for y in self.rect_tk_to_yolo(rect.points[0][0],rect.points[0][1],rect.points[2][0],rect.points[2][1])]
+				elif rect.__class__.__name__ == 'Point':
+					yolo_str = ['{0:.6f}'.format(y) for y in self.point_tk_to_yolo(rect.points[0][0],rect.points[0][1])]
 				l = l + ' '.join(yolo_str)
 				line.append(l)
 			file.write('\n'.join(line))
@@ -762,7 +787,7 @@ class Application(tkinter.Frame):
 
 
 	def end_draw(self,event=None):
-		# print('end')s
+		# print('end')
 		self.imgcanvas.unbind('<Motion>')
 		self.imgcanvas.tag_unbind('all','<Button-1>')
 		self.imgcanvas.tag_bind('drawable','<Button-1>',self.do_draw)
@@ -829,15 +854,15 @@ class Application(tkinter.Frame):
 		if not self.imgcanvas.focusing == rect:
 			self.imgcanvas.focusing = rect
 			self.imgcanvas.delete('knob')
-			self.imgcanvas.knobs = np.zeros(rect.__class__.NUM_OF_POINTS)
+			self.imgcanvas.knobs = np.zeros(rect.__class__.NUM_OF_POINTS, np.int32)
+			# self.imgcanvas.knobs is array that contain *ID(integer)*
 			for i,p in enumerate(rect.points*self.imgcanvas.ratio):
-				ID = self.imgcanvas.create_oval(p[0]-7, p[1]-7, p[0]+7, p[1]+7, fill='white', tag='knob')
+				ID = self.imgcanvas.create_oval(p[0]-self.KNOB_SIZE, p[1]-self.KNOB_SIZE, p[0]+self.KNOB_SIZE, p[1]+self.KNOB_SIZE, fill='white', tag='knob')
 				# print(i, p, ID)
 				self.imgcanvas.knobs[i] = ID
-				print(self.imgcanvas.knobs)
 		else:
 			for i,p in enumerate(rect.points*self.imgcanvas.ratio):
-				self.imgcanvas.coords(self.imgcanvas.knobs[i], p[0]-7, p[1]-7, p[0]+7, p[1]+7)
+				self.imgcanvas.coords(self.imgcanvas.knobs[i], p[0]-self.KNOB_SIZE, p[1]-self.KNOB_SIZE, p[0]+self.KNOB_SIZE, p[1]+self.KNOB_SIZE)
 				# print(i, p, ID)
 		for ID in rect.ID:
 			self.imgcanvas.tag_raise(ID)
@@ -910,7 +935,7 @@ class Application(tkinter.Frame):
 		return a,b
 
 
-	def tk_to_yolo(self,x1,y1,x2,y2):
+	def rect_tk_to_yolo(self,x1,y1,x2,y2):
 		x1 = (x1-1) / (self.img_width-1)
 		x2 = (x2-1) / (self.img_width-1)
 		y1 = (y1-1) / (self.img_height-1)
@@ -922,7 +947,12 @@ class Application(tkinter.Frame):
 		h = (y2-y1)
 		return x,y,w,h
 
-	def yolo_to_tk(self,x,y,w,h):
+	def point_tk_to_yolo(self,x,y):
+		x = (x-1) / (self.img_width-1)
+		y = (y-1) / (self.img_height-1)
+		return x,y
+
+	def rect_yolo_to_tk(self,x,y,w,h):
 		x1 = x-w/2
 		x2 = x+w/2
 		y1 = y-h/2
@@ -932,6 +962,11 @@ class Application(tkinter.Frame):
 		y1 = round(y1*(self.img_height-1))+1
 		y2 = round(y2*(self.img_height-1))+1
 		return x1,y1,x2,y2
+
+	def point_yolo_to_tk(self,x,y):
+		x = round(x*(self.img_width-1))+1
+		y = round(y*(self.img_height-1))+1
+		return x,y
 
 	def get_colors(self, color_num):
 		colors = {}
