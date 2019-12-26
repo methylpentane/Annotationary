@@ -230,7 +230,7 @@ class Point:
 
 
 	def set_points_by_coord(self, coord):
-		# canvasの四角形の座標形式から頂点をセット
+		# canvasの座標形式から頂点をセット
 		# set vertice by format of tkinter#canvas
 		x, y = coord
 		self.points = np.array([[x,y]])
@@ -250,8 +250,8 @@ class Point:
 			APP.imgcanvas.coords(self.ID[3], p[0][0]-self.CROSSHAIR_SIZE, p[0][1]-self.CROSSHAIR_SIZE, p[0][0]+self.CROSSHAIR_SIZE, p[0][1]+self.CROSSHAIR_SIZE)
 		else:
 			self.ID.append(APP.imgcanvas.create_text(p[0][0]-self.CROSSHAIR_SIZE, p[0][1]+self.CROSSHAIR_SIZE, text=self.label, fill=APP.colors[self.label], font=('',APP.FONT_SIZE), justify='left', anchor='nw', tag='class_text'))
-			self.ID.append(APP.imgcanvas.create_line(p[0][0]-self.CROSSHAIR_SIZE, p[0][1]+self.CROSSHAIR_SIZE, p[0][0]+self.CROSSHAIR_SIZE, p[0][1]-self.CROSSHAIR_SIZE, fill=APP.colors[self.label], width='3', tag='crosshair'))
-			self.ID.append(APP.imgcanvas.create_line(p[0][0]-self.CROSSHAIR_SIZE, p[0][1]-self.CROSSHAIR_SIZE, p[0][0]+self.CROSSHAIR_SIZE, p[0][1]+self.CROSSHAIR_SIZE, fill=APP.colors[self.label], width='3', tag='crosshair'))
+			self.ID.append(APP.imgcanvas.create_line(p[0][0]-self.CROSSHAIR_SIZE, p[0][1]+self.CROSSHAIR_SIZE, p[0][0]+self.CROSSHAIR_SIZE, p[0][1]-self.CROSSHAIR_SIZE, fill=APP.colors[self.label], width='1', tag='crosshair'))
+			self.ID.append(APP.imgcanvas.create_line(p[0][0]-self.CROSSHAIR_SIZE, p[0][1]-self.CROSSHAIR_SIZE, p[0][0]+self.CROSSHAIR_SIZE, p[0][1]+self.CROSSHAIR_SIZE, fill=APP.colors[self.label], width='1', tag='crosshair'))
 			self.ID.append(APP.imgcanvas.create_rectangle(p[0][0]-self.CROSSHAIR_SIZE, p[0][1]-self.CROSSHAIR_SIZE, p[0][0]+self.CROSSHAIR_SIZE, p[0][1]+self.CROSSHAIR_SIZE, outline='black', fill='white', stipple='@src/empty.xbm', width='1', tag='movable'))
 
 
@@ -308,6 +308,125 @@ class Point:
 
             #################################################################
 #########################################################################################
+######################################    Vector     ####################################
+#########################################################################################
+            #################################################################
+
+class Vector:
+
+	# 0
+	#  \
+	#   \
+	#    \ /
+	#     1
+	#    / \
+
+	# 2 points, 1 line, 1 crosshair
+
+
+	NUM_OF_POINTS  = 2
+	NUM_OF_TEMP    = 4
+	TEMP           = []
+	TEMP_ID        = []
+	CROSSHAIR_SIZE = 15
+
+	def __init__(self,coord=None):
+		self.points = None
+		self.label  = None
+		self.ID     = []
+		self.offset = None
+		if coord:
+			self.set_points_by_coord(coord)
+
+
+	def set_points_by_coord(self, coord):
+		# canvasの座標形式から頂点をセット
+		# set vertice by format of tkinter#canvas
+		x1, y1, x2, y2 = coord
+		self.points = np.array([[x1,y1],[x2,y2]])
+
+
+	def draw(self):
+		# 現在の頂点リストをもとにcanvasに描画し、self.IDを設定
+		# self.IDがある場合(すでに描画済み)、図形の位置を更新
+		# draw on canvas by current vertice list, save IDs
+		# just change coords if it have already IDs (already drawn)
+		p = self.points * APP.imgcanvas.ratio
+
+		if self.ID:
+			APP.imgcanvas.coords(self.ID[0], p[1][0]-self.CROSSHAIR_SIZE, p[1][1]+self.CROSSHAIR_SIZE)
+			APP.imgcanvas.coords(self.ID[1], p[0][0], p[0][1], p[1][0], p[1][1])
+			APP.imgcanvas.coords(self.ID[2], p[0][0], p[0][1], p[1][0], p[1][1])
+			APP.imgcanvas.coords(self.ID[3], p[1][0]-self.CROSSHAIR_SIZE, p[1][1]+self.CROSSHAIR_SIZE, p[1][0]+self.CROSSHAIR_SIZE, p[1][1]-self.CROSSHAIR_SIZE)
+			APP.imgcanvas.coords(self.ID[4], p[1][0]-self.CROSSHAIR_SIZE, p[1][1]-self.CROSSHAIR_SIZE, p[1][0]+self.CROSSHAIR_SIZE, p[1][1]+self.CROSSHAIR_SIZE)
+		else:
+			self.ID.append(APP.imgcanvas.create_text(p[1][0]-self.CROSSHAIR_SIZE, p[1][1]+self.CROSSHAIR_SIZE, text=self.label, fill=APP.colors[self.label], font=('',APP.FONT_SIZE), justify='left', anchor='nw', tag='class_text'))
+			self.ID.append(APP.imgcanvas.create_line(p[0][0], p[0][1], p[1][0], p[1][1], fill=APP.colors[self.label], width='1', tag='line'))
+			self.ID.append(APP.imgcanvas.create_line(p[0][0], p[0][1], p[1][0], p[1][1], stipple='@src/empty.xbm',width='15',tag=('line','movable')))
+			self.ID.append(APP.imgcanvas.create_line(p[1][0]-self.CROSSHAIR_SIZE, p[1][1]+self.CROSSHAIR_SIZE, p[1][0]+self.CROSSHAIR_SIZE, p[1][1]-self.CROSSHAIR_SIZE, fill=APP.colors[self.label], width='1', tag='crosshair'))
+			self.ID.append(APP.imgcanvas.create_line(p[1][0]-self.CROSSHAIR_SIZE, p[1][1]-self.CROSSHAIR_SIZE, p[1][0]+self.CROSSHAIR_SIZE, p[1][1]+self.CROSSHAIR_SIZE, fill=APP.colors[self.label], width='1', tag='crosshair'))
+
+
+	def label_redraw(self):
+		# ラベルだけ書き直す
+		# change label showing
+		APP.imgcanvas.itemconfig(self.ID[0], text=self.label, fill=APP.colors[self.label])
+		APP.imgcanvas.itemconfig(self.ID[1], fill=APP.colors[self.label])
+		APP.imgcanvas.itemconfig(self.ID[3], fill=APP.colors[self.label])
+		APP.imgcanvas.itemconfig(self.ID[4], fill=APP.colors[self.label])
+
+
+	@classmethod
+	def show_temp(cls,x,y):
+		if cls.TEMP_ID:
+			t = [temp * APP.imgcanvas.ratio for temp in cls.TEMP]
+			APP.imgcanvas.coords(cls.TEMP_ID[0], t[0], t[1], x, y)
+		else:
+			cls.TEMP_ID.append(APP.imgcanvas.create_line(x,y,x,y, fill='blue', width='1', tag='temp_annotation'))
+
+
+	def move(self,dxi,dyi):
+		px = self.points[:,0]+dxi
+		py = self.points[:,1]+dyi
+		if px[0] < 1:
+			px = px - (px[0]-1)
+		if px[0] > APP.img_width:
+			px = px - (px[0]-APP.img_width)
+		if px[1] < 1:
+			px = px - (px[1]-1)
+		if px[1] > APP.img_width:
+			px = px - (px[1]-APP.img_width)
+		if py[0] < 1:
+			py = py - (py[0]-1)
+		if py[0] > APP.img_height:
+			py = py - (py[0]-APP.img_height)
+		if py[1] < 1:
+			py = py - (py[1]-1)
+		if py[1] > APP.img_height:
+			py = py - (py[1]-APP.img_height)
+		self.points = np.vstack((px,py)).transpose()
+		self.draw()
+
+
+	def modify(self,n,x,y):
+		# assert n==0 or n==1
+
+		# 座標を変更
+		self.points[n][0] = x
+		self.points[n][1] = y
+
+		self.draw()
+
+
+	def erase(self):
+		for ID in self.ID:
+			APP.imgcanvas.delete(ID)
+		self.ID.clear()
+
+
+
+            #################################################################
+#########################################################################################
 ######################################  Application  ####################################
 #########################################################################################
             #################################################################
@@ -315,7 +434,7 @@ class Point:
 class Application(tkinter.Frame):
 
 	COMMON_RATIO = 1.1
-	KNOB_SIZE = 6
+	KNOB_SIZE = 5
 	FONT_SIZE = 18
 
 	def __init__(self, master=None):
@@ -430,7 +549,7 @@ class Application(tkinter.Frame):
 		self.save_button.pack(side='left')
 
 		# annotation style default = rectangle
-		self.now_drawing = Rectangle
+		self.now_drawing = Vector
 
 		# canvas
 		self.cvs_width = self.img_width
@@ -470,6 +589,7 @@ class Application(tkinter.Frame):
 		self.imgcanvas.bind('<a>',self.test)
 		self.imgcanvas.bind('<r>',self.mode_rect)
 		self.imgcanvas.bind('<p>',self.mode_point)
+		self.imgcanvas.bind('<v>',self.mode_vec)
 
 		# canvas attribute
 		self.imgcanvas.rectangle = []
@@ -615,7 +735,7 @@ class Application(tkinter.Frame):
 				for line in file.readlines():
 					l = line.split(' ')
 					if len(l) == 5:
-						rect = Rectangle(self.rect_yolo_to_tk(float(l[1]),float(l[2]),float(l[3]),float(l[4])))
+						rect = Vector(self.vec_yolo_to_tk(float(l[1]),float(l[2]),float(l[3]),float(l[4])))
 					elif len(l) == 3:
 						rect = Point(self.point_yolo_to_tk(float(l[1]),float(l[2])))
 					rect.label = self.labels[int(l[0])]
@@ -635,6 +755,8 @@ class Application(tkinter.Frame):
 				l = str(self.labels.index(rect.label)) + ' '
 				if rect.__class__.__name__ == 'Rectangle':
 					yolo_str = ['{0:.6f}'.format(y) for y in self.rect_tk_to_yolo(rect.points[0][0],rect.points[0][1],rect.points[2][0],rect.points[2][1])]
+				elif rect.__class__.__name__ == 'Vector':
+					yolo_str = ['{0:.6f}'.format(y) for y in self.vec_tk_to_yolo(rect.points[0][0],rect.points[0][1],rect.points[1][0],rect.points[1][1])]
 				elif rect.__class__.__name__ == 'Point':
 					yolo_str = ['{0:.6f}'.format(y) for y in self.point_tk_to_yolo(rect.points[0][0],rect.points[0][1])]
 				l = l + ' '.join(yolo_str)
@@ -694,6 +816,10 @@ class Application(tkinter.Frame):
 
 	def mode_point(self,event):
 		self.now_drawing = Point
+		print(self.now_drawing)
+
+	def mode_vec(self,event):
+		self.now_drawing = Vector
 		print(self.now_drawing)
 
 	######################################################################## } mode change
@@ -947,6 +1073,14 @@ class Application(tkinter.Frame):
 		h = (y2-y1)
 		return x,y,w,h
 
+	def vec_tk_to_yolo(self,x1,y1,x2,y2):
+		x1 = (x1-1) / (self.img_width-1)
+		x2 = (x2-1) / (self.img_width-1)
+		y1 = (y1-1) / (self.img_height-1)
+		y2 = (y2-1) / (self.img_height-1)
+		return x1,y1,x2,y2
+
+
 	def point_tk_to_yolo(self,x,y):
 		x = (x-1) / (self.img_width-1)
 		y = (y-1) / (self.img_height-1)
@@ -957,6 +1091,13 @@ class Application(tkinter.Frame):
 		x2 = x+w/2
 		y1 = y-h/2
 		y2 = y+h/2
+		x1 = round(x1*(self.img_width-1))+1
+		x2 = round(x2*(self.img_width-1))+1
+		y1 = round(y1*(self.img_height-1))+1
+		y2 = round(y2*(self.img_height-1))+1
+		return x1,y1,x2,y2
+
+	def vec_yolo_to_tk(self,x1,y1,x2,y2):
 		x1 = round(x1*(self.img_width-1))+1
 		x2 = round(x2*(self.img_width-1))+1
 		y1 = round(y1*(self.img_height-1))+1
