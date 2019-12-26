@@ -63,4 +63,13 @@ the change will not saved until you press save button again.
 ___
 #### 5. other button on above
 magnifier -> zoom function  
-triangle -> browse function
+triangle -> browse function  
+
+
+## Optional
+___
+#### point style annotation
+presssing p key, Annotationary will change the mode to point mode.  
+In this mode, annotation style is point and saved txt file is like (label, x_coord, y_coord).  
+this function is for our experimental use, of course not for proper YOLO model.  
+pressing r key, you can resume to regular rectangle mode.  
